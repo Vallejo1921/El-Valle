@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    // Evita dependencia circular: /usuarios solo se puede leer por su duenio.
+    // Para admin real en produccion, usa Custom Claims (request.auth.token.admin).
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow update: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Catalogo visible para usuarios autenticados.
+    match /products/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /offers/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /cart/{id} {
+      allow create: if signedIn() && request.resource.data.clientUid == request.auth.uid;
+      allow read, update, delete: if signedIn() && resource.data.clientUid == request.auth.uid;
+    }
+
+    match /pedidos/{id} {
+      allow create: if signedIn() && request.resource.data.clientUid == request.auth.uid;
+      allow read: if signedIn() && (isAdmin() || resource.data.clientUid == request.auth.uid);
+      allow update: if signedIn() && (isAdmin() || resource.data.clientUid == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    match /orderItems/{id} {
+      allow create: if signedIn();
+      allow read: if signedIn() && (
+        isAdmin() ||
+        exists(/databases/$(database)/documents/pedidos/$(resource.data.orderId)) &&
+        get(/databases/$(database)/documents/pedidos/$(resource.data.orderId)).data.clientUid == request.auth.uid
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    match /settings/{id} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

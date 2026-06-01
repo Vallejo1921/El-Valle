@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#58d1d4">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Cliente | Pedidos Publicitarios</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="cliente-page">
+  <header>
+    <h1>Mis Pedidos</h1>
+    <div class="actions">
+      <button id="logoutClient" class="btn-logout">Cerrar sesion</button>
+    </div>
+  </header>
+  <div id="networkBanner" class="network-banner" hidden aria-live="polite"></div>
+
+  <main>
+    <section class="panel welcome-panel">
+      <div class="welcome-top">
+        <img id="clientAvatar" class="avatar" alt="Perfil cliente" src="icons/icon-192.svg">
+        <div>
+          <p class="welcome-kicker">Bienvenido</p>
+          <h2 id="clientWelcomeName">Cliente</h2>
+          <p id="clientWelcomeSummary">Cargando resumen...</p>
+        </div>
+      </div>
+      <p id="clientWelcomeDate" class="welcome-date"></p>
+    </section>
+
+    <section class="summary-grid" aria-label="Resumen general" data-client-view="inicio">
+      <article class="summary-card"><span>Pedidos activos</span><strong id="summaryActive">0</strong></article>
+      <article class="summary-card"><span>Pedidos terminados</span><strong id="summaryDone">0</strong></article>
+      <article class="summary-card"><span>Carrito</span><strong id="summaryCart">0</strong></article>
+      <article class="summary-card"><span>Ofertas</span><strong id="summaryOffers">0</strong></article>
+    </section>
+
+    <section class="panel quick-menu-panel" data-client-view="inicio" id="sectionQuickMenu">
+      <h2>Menu principal</h2>
+      <div class="quick-menu-grid">
+        <button type="button" class="quick-item" data-quick="catalogo">Catalogo</button>
+        <button type="button" class="quick-item" data-quick="crear">Crear pedido</button>
+        <button type="button" id="quickOpenCart" class="quick-item" data-quick="carrito">Carrito</button>
+        <button type="button" class="quick-item" data-quick="proceso">En proceso</button>
+        <button type="button" class="quick-item" data-quick="historial">Historial</button>
+        <button type="button" class="quick-item" data-quick="chat">Chat admin</button>
+        <button type="button" class="quick-item" data-quick="perfil">Perfil cliente</button>
+      </div>
+    </section>
+
+    <section class="panel" data-client-view="pedidos" hidden id="sectionProcess">
+      <h2>Pedidos en proceso</h2>
+      <div id="clientProcessBody" class="process-cards"></div>
+    </section>
+
+    <div id="clientMessage" aria-live="polite"></div>
+
+    <section class="panel" data-client-view="pedidos" hidden id="sectionOrders">
+      <h2>Mis solicitudes</h2>
+      <div id="clientOrdersBody" class="order-cards"></div>
+    </section>
+
+    <section class="panel" data-client-view="notificaciones" hidden id="sectionNotifications">
+      <h2>Notificaciones</h2>
+      <div id="clientNotificationsBody" class="order-cards">
+        <article class="order-card">Aun no hay notificaciones nuevas.</article>
+      </div>
+    </section>
+
+    <section class="panel" data-client-view="perfil" hidden id="sectionProfile">
+      <h2>Perfil cliente</h2>
+      <div class="order-cards">
+        <article class="order-card"><strong>Nombre:</strong> <span id="clientProfileName">-</span></article>
+        <article class="order-card"><strong>Correo:</strong> <span id="clientProfileEmail">-</span></article>
+        <article class="order-card"><strong>ID:</strong> <span id="clientProfileUid">-</span></article>
+      </div>
+    </section>
+
+    <section class="panel" data-client-view="catalogo" hidden id="sectionCatalog">
+      <h2>Catalogo</h2>
+      <div id="productsCatalogBody" class="offer-cards"></div>
+    </section>
+  </main>
+
+  <button id="openCartModal" class="fab-cart" type="button" aria-label="Carrito">🛒<span id="cartFabCount">0</span></button>
+
+  <section id="cartModal" class="cart-modal" hidden aria-label="Carrito" role="dialog" aria-modal="true">
+    <div class="cart-modal-card" tabindex="-1">
+      <div class="cart-modal-head">
+        <h2>Carrito</h2>
+        <button id="closeCartModal" type="button" class="btn-del">Cerrar</button>
+      </div>
+      <div id="cartBody" class="cart-cards"></div>
+      <div class="cart-actions">
+        <button type="button" id="sendCartToAdmin" class="submit">Enviar pedido al admin</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="newOrderModal" class="sheet-modal" hidden aria-label="Nueva solicitud" role="dialog" aria-modal="true">
+    <div class="sheet-card" tabindex="-1">
+      <div class="sheet-head">
+        <h2>Nueva solicitud</h2>
+        <button id="closeNewOrderModal" type="button" class="btn-del">Cerrar</button>
+      </div>
+      <form id="orderForm">
+        <div class="form-grid">
+          <div>
+            <label for="productId">Producto</label>
+            <select id="productId" required>
+              <option value="">Selecciona producto</option>
+            </select>
+          </div>
+          <div>
+            <label for="quantity">Cantidad</label>
+            <input id="quantity" type="number" min="1" value="1" required>
+          </div>
+          <div>
+            <label for="paymentMethod">Metodo de pago</label>
+            <select id="paymentMethod" required>
+              <option value="">Selecciona</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="efectivo">Efectivo</option>
+            </select>
+          </div>
+          <div>
+            <label for="estimatedCost">Costo estimado</label>
+            <input id="estimatedCost" type="text" readonly placeholder="$0">
+          </div>
+          <div class="full">
+            <label for="details">Descripcion de la idea</label>
+            <textarea id="details" required placeholder="Objetivo, publico meta y fechas..."></textarea>
+          </div>
+          <div class="full">
+            <label for="designChanges">Cambios sobre diseno anterior</label>
+            <textarea id="designChanges" placeholder="Indica ajustes sobre versiones previas..."></textarea>
+          </div>
+          <div class="full">
+            <label for="attachments">Adjuntos (imagenes o PDF)</label>
+            <input id="attachments" type="file" multiple accept="image/*,.pdf" disabled>
+            <div class="hint">Adjuntos desactivados por ahora.</div>
+          </div>
+        </div>
+        <input type="hidden" id="editingCartId">
+        <button type="submit" class="submit">Agregar al carrito</button>
+      </form>
+    </div>
+  </section>
+
+  <nav class="bottom-nav" aria-label="Principal">
+    <button type="button" class="active" data-nav="inicio" aria-label="Inicio">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </button>
+    <button type="button" data-nav="catalogo" aria-label="Catalogo">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 6h18v2H4zm0 5h18v2H4zm0 5h18v2H4z"/></svg>
+    </button>
+    <button type="button" data-nav="pedidos" aria-label="Pedidos">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/></svg>
+    </button>
+    <button type="button" data-nav="notificaciones" aria-label="Notificaciones">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+    </button>
+    <button type="button" data-nav="perfil" aria-label="Perfil">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    </button>
+  </nav>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

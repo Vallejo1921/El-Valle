@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#58d1d4">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Login | Pedidos Publicitarios</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+  <main class="card">
+    <h1>Pedidos de Publicidad</h1>
+    <p>Ingresa para gestionar campañas y solicitudes.</p>
+
+    <form id="loginForm">
+      <label for="userEmail">Correo</label>
+      <input id="userEmail" type="email" placeholder="Ej: cliente@correo.com" required>
+
+      <label for="userPassword">Contrasena</label>
+      <input id="userPassword" type="password" placeholder="Minimo 6 caracteres" required>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:normal;font-size:0.85rem;margin-top:5px;">
+        <input type="checkbox" id="showPassword" style="width:auto;margin:0;"> Mostrar contrasena
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="btn-main">Entrar</button>
+        <button type="button" id="clearLogin" class="btn-clear">Limpiar</button>
+      </div>
+
+      <div id="loginMessage"></div>
+      <div class="hint">Login real con Firebase Authentication.</div>
+    </form>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
